@@ -55,7 +55,7 @@ exports.emergencyLogin = async (req, res) => {
       Response(res, false, "Enter valid email id.", 422);
       return;
     }
-    const users = await User.findOne({ emergencyAccess: emergencyMail });
+    const users = await User.findOne({ emergencyMail: emergencyMail }); // Fixed: was 'emergencyAccess' which doesn't exist in schema
     if (!users) {
       Response(res, false, "Emergency email not found.", 404);
       return;
@@ -205,11 +205,11 @@ exports.emergencyLogin = async (req, res) => {
       const token = Jwt.sign(payload, process.env.JWT_SECRET, {
         expiresIn: "6h",
       });
-      users.token = token;
-      await users.save();
       const options = {
         httpOnly: true,
-        expires: new Date(Date.now() + 4 + 24 * 60 * 60 * 1000),
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        expires: new Date(Date.now() + (24 * 60 * 60 * 1000)), // 24 hours
       };
       res
         .cookie("token", token, options)

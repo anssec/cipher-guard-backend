@@ -14,8 +14,8 @@ exports.favoriteNote = async (req, res) => {
         new: true,
       });
       Response(res, true, "Note updated successfully", 200);
-      nodeCache.del("getAllNote");
-      nodeCache.del("favoriteNotes");
+      nodeCache.del(`getAllNote_${req.user.id}`);
+      nodeCache.del(`favoriteNotes_${req.user.id}`);
       return;
     } catch (error) {
       Response(res, false, "Note not found", 404);

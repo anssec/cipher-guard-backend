@@ -12,7 +12,7 @@ exports.deleteSavedPasswd = async (req, res) => {
       await User.findByIdAndUpdate(verifyToken.id, {
         $pull: { passwordVault: id },
       });
-      nodeCache.del("getSavedPasswd");
+      nodeCache.del(`getSavedPasswd_${verifyToken.id}`);
       Response(res, true, "Password delete successfully", 200);
       return;
     } catch (error) {

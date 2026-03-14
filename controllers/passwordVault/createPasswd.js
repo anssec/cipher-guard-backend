@@ -69,7 +69,7 @@ exports.createPasswd = async (req, res) => {
       },
       { new: true }
     );
-    nodeCache.del("getSavedPasswd");
+    nodeCache.del(`getSavedPasswd_${verifyToken.id}`);
     Response(res, true, "credential saved", 200);
     return;
   } catch (error) {

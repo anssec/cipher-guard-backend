@@ -15,8 +15,8 @@ exports.deleteNote = async (req, res) => {
         },
         { new: true }
       );
-      nodeCache.del("getAllNote");
-      nodeCache.del("favoriteNotes");
+      nodeCache.del(`getAllNote_${req.user.id}`);
+      nodeCache.del(`favoriteNotes_${req.user.id}`);
       Response(res, true, "note delete successfully", 200);
       return;
     } catch (error) {

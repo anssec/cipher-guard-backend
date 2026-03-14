@@ -52,7 +52,7 @@ exports.updateSavedPasswd = async (req, res) => {
       }
       updatedPassword.passwordHistory += 1;
       await updatedPassword.save();
-      nodeCache.del("getSavedPasswd");
+      nodeCache.del(`getSavedPasswd_${verifyToken.id}`);
       Response(res, true, "Password Updated", 200);
       return;
     } catch (error) {

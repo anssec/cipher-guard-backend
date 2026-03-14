@@ -21,8 +21,8 @@ exports.updateNote = async (req, res) => {
       await secureNotes.findByIdAndUpdate(id, updateNotes, {
         new: true,
       });
-      nodeCache.del("getAllNote");
-      nodeCache.del("favoriteNotes");
+      nodeCache.del(`getAllNote_${req.user.id}`);
+      nodeCache.del(`favoriteNotes_${req.user.id}`);
       Response(res, true, "Note updated successfully", 200);
       return;
     } catch (error) {
