@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
     },
     lastAttemptTime: {
       type: Date,
-      default: Date.now, // No parentheses — evaluated per document, not at module load
+      default: Date.now(),
     },
   },
   accountLock: {

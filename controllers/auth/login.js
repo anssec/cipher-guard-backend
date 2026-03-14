@@ -37,46 +37,41 @@ exports.login = async (req, res) => {
     let isPasswordMatch = await bcrypt.compare(password, users.password);
 
     if (!isPasswordMatch) {
+      // Check if lastAttemptTime is older than the current time
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-
-      // Reset counter if the last attempt was more than 30 minutes ago
-      if (
-        users.wrongPasswdAttempt.lastAttemptTime &&
-        users.wrongPasswdAttempt.lastAttemptTime < thirtyMinutesAgo
-      ) {
+      if (users.wrongPasswdAttempt.lastAttemptTime < thirtyMinutesAgo) {
+        // Reset attempts to 0 and set lastAttemptTime to undefined
         users.wrongPasswdAttempt.attempts = 0;
         users.wrongPasswdAttempt.lastAttemptTime = undefined;
         await users.save();
       }
-
-      // Always increment attempt counter (was a dead-zone on first failure before)
-      users.wrongPasswdAttempt.attempts += 1;
-      users.wrongPasswdAttempt.lastAttemptTime = new Date();
-
-      if (users.wrongPasswdAttempt.attempts >= 4) {
+      if (
+        users.wrongPasswdAttempt.attempts === 4 &&
+        users.wrongPasswdAttempt.lastAttemptTime
+      ) {
         users.accountLock = true;
         await users.save();
         nodeCache.del("getLockUser");
         Response(
           res,
           false,
-          "Your account is locked. Contact support@cleverpentester.com",
+          "Your Accout is locked contact admin@devglimpse.com",
           423
         );
         return;
+      } else if (users.wrongPasswdAttempt.lastAttemptTime) {
+        users.wrongPasswdAttempt.attempts += 1;
+        await users.save();
+        Response(
+          res,
+          false,
+          `wrong password you left ${users.wrongPasswdAttempt.attempts} out of 4`,
+          401
+        );
+        return;
       }
-
-      await users.save();
-      const remaining = 4 - users.wrongPasswdAttempt.attempts;
-      Response(
-        res,
-        false,
-        `Wrong password. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`,
-        401
-      );
-      return;
     } else {
-      users.wrongPasswdAttempt.attempts = 0;
+      users.wrongPasswdAttempt.attempts *= 0;
       users.wrongPasswdAttempt.lastAttemptTime = undefined;
       await users.save();
       const ipAddress = (
@@ -217,9 +212,7 @@ exports.login = async (req, res) => {
       });
       const options = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        expires: new Date(Date.now() + (12 * 60 * 60 * 1000)), // 12 hours
+        expires: new Date(Date.now() + 12 * 60 * 60 * 1000),
       };
       res
         .cookie("token", token, options)
@@ -227,7 +220,7 @@ exports.login = async (req, res) => {
         .json({
           success: true,
           message: `Welcome back ${users.firstName}`,
-          // Token intentionally not returned in body — lives in httpOnly cookie only
+          data: token,
           profile: {
             firstName: users.firstName,
             lastName: users.lastName,

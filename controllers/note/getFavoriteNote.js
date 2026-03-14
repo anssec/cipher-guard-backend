@@ -6,14 +6,14 @@ exports.getFavoriteNote = async (req, res) => {
   try {
     const verifyToken = req.user;
     let favoriteNotes;
-    if (nodeCache.has(`favoriteNotes_${verifyToken.id}`)) {
-      favoriteNotes = JSON.parse(nodeCache.get(`favoriteNotes_${verifyToken.id}`));
+    if (nodeCache.has("favoriteNotes")) {
+      favoriteNotes = JSON.parse(nodeCache.get("favoriteNotes"));
       Response(res, true, null, 200, favoriteNotes);
       return;
     } else {
       const user = await User.findById(verifyToken.id).populate("secureNotes");
       favoriteNotes = user.secureNotes.filter((note) => note.favorite);
-      nodeCache.set(`favoriteNotes_${verifyToken.id}`, JSON.stringify(favoriteNotes), 300);
+      nodeCache.set("favoriteNotes", JSON.stringify(favoriteNotes), 300);
       Response(res, true, null, 200, favoriteNotes);
       return;
     }

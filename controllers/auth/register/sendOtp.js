@@ -39,13 +39,6 @@ exports.sendOtp = async (req, res) => {
       Response(res, false, "Enter valid email id.", 422);
       return;
     }
-    // Check for existing email BEFORE hashing (fail fast — bcrypt is slow)
-    const existingUser = await require("../../../models/user.js").findOne({ email });
-    if (existingUser) {
-      Response(res, false, "Email is already registered.", 422);
-      return;
-    }
-
     //add hashing to input password
     const hashPassword = await bcrypt.hash(password, 10);
 

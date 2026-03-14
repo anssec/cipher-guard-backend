@@ -26,7 +26,7 @@ const router = express.Router();
 router.post("/createPasswd", auth, isAuthUser, verifyAuthPin, createPasswd);
 router.post("/generatePasswd", auth, isAuthUser, generatePasswd);
 router.post("/generateUsername", auth, isAuthUser, generateUsername);
-router.delete(
+router.post(
   "/deletePasswd/:id",
   auth,
   isAuthUser,
@@ -41,6 +41,6 @@ router.put(
   updateSavedPasswd
 );
 
-router.get("/getAllPasswd", auth, isAuthUser, verifyAuthPin, getSavedPasswd);
+router.post("/getAllPasswd", auth, isAuthUser, verifyAuthPin, getSavedPasswd);
 router.post("/decodePasswd", auth, isAuthUser, verifyAuthPin, decodePasswd);
 module.exports = router;

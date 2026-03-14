@@ -6,14 +6,14 @@ exports.getAllNote = async (req, res) => {
   try {
     const verifyToken = req.user;
     let allNote;
-    if (nodeCache.has(`getAllNote_${verifyToken.id}`)) {
-      allNote = JSON.parse(nodeCache.get(`getAllNote_${verifyToken.id}`));
+    if (nodeCache.has("getAllNote")) {
+      allNote = JSON.parse(nodeCache.get("getAllNote"));
       Response(res, true, null, 200, allNote);
       return;
     } else {
       const user = await User.findById(verifyToken.id).populate("secureNotes");
       allNote = user.secureNotes;
-      nodeCache.set(`getAllNote_${verifyToken.id}`, JSON.stringify(allNote), 300);
+      nodeCache.set("getAllNote", JSON.stringify(allNote), 300);
       Response(res, true, null, 200, allNote);
       return;
     }

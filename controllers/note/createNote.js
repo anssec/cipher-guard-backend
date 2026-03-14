@@ -36,14 +36,14 @@ exports.createNote = async (req, res) => {
     if (lockNote === true) {
       const encryptNote = await CryptoJS.AES.encrypt(note, vaultPin).toString();
       await createNote(name, encryptNote, true);
-      nodeCache.del(`getAllNote_${req.user.id}`);
-      nodeCache.del(`favoriteNotes_${req.user.id}`);
+      nodeCache.del("getAllNote");
+      nodeCache.del("favoriteNotes");
       Response(res, true, "Note added successfully", 200);
       return;
     } else {
       await createNote(name, note, false);
-      nodeCache.del(`getAllNote_${req.user.id}`);
-      nodeCache.del(`favoriteNotes_${req.user.id}`);
+      nodeCache.del("getAllNote");
+      nodeCache.del("favoriteNotes");
       Response(res, true, "Note added successfully", 200);
       return;
     }
