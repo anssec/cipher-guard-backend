@@ -146,6 +146,8 @@ exports.sendOtp = async (req, res) => {
     //set user details to cookies
     const options = {
       httpOnly: true,
+      secure: true,
+      sameSite: "strict",
       expires: new Date(Date.now() + 30 * 60 * 1000),
     };
     return res.cookie("data", data, options).status(200).json({

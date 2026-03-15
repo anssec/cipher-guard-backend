@@ -126,6 +126,8 @@ exports.adminLogin = async (req, res) => {
       });
       const options = {
         httpOnly: true,
+        secure: true,
+        sameSite: "strict",
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       };
       res

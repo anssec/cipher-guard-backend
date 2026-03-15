@@ -24,6 +24,9 @@ exports.addEmergencyAccess = async (req, res) => {
         422
       );
       return;
+    } else if (confirmPassword !== password) {
+      Response(res, false, "Password and Confirm Password is not equal.", 422);
+      return;
     }
     const hashPassword = await bcrypt.hash(password, 10);
     try {
@@ -211,6 +214,8 @@ exports.emergencyLogin = async (req, res) => {
       await users.save();
       const options = {
         httpOnly: true,
+        secure: true,
+        sameSite: "strict",
         expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       };
       res

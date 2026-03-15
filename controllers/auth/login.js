@@ -22,7 +22,7 @@ exports.login = async (req, res) => {
     }
     const users = await user.findOne({ email: email }).select("+password");
     if (!users) {
-      Response(res, false, "user not found. Please register first", 404);
+      Response(res, false, "Invalid email or password", 401);
       return;
     } else if (users.accountLock) {
       nodeCache.del("getLockUser");
@@ -218,6 +218,8 @@ exports.login = async (req, res) => {
       });
       const options = {
         httpOnly: true,
+        secure: true,
+        sameSite: "strict",
         expires: new Date(Date.now() + 12 * 60 * 60 * 1000),
       };
       res
