@@ -14,6 +14,7 @@ const admin = require("./routes/admin.js");
 const Response = require("./utils/Response.js");
 const PORT = process.env.PORT || 7000;
 const app = express();
+app.set("trust proxy", 1); // Trust the Vercel proxy to get the real client IP
 
 // Security headers (disables X-Powered-By, adds HSTS, X-Content-Type-Options, etc.)
 app.use(helmet());
