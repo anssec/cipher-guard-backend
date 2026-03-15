@@ -1,6 +1,11 @@
 const nodeMailer = require("nodemailer");
 
 exports.mailSender = async (email, title, body) => {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_MAIL) {
+    console.log("SMTP is disabled, skipping email send");
+    return;
+  }
+
   try {
     let transpoter = nodeMailer.createTransport({
       host: process.env.SMTP_HOST,
