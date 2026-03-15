@@ -6,6 +6,12 @@ exports.deleteNote = async (req, res) => {
   try {
     const verifyUser = req.user;
     const notesId = req.params.id;
+    // BOLA check: verify the note belongs to this user
+    const user = await User.findById(verifyUser.id);
+    if (!user.secureNotes.some((noteId) => noteId.toString() === notesId)) {
+      Response(res, false, "Not authorized to delete this note", 403);
+      return;
+    }
     try {
       await secureNotes.findByIdAndDelete(notesId);
       await User.updateOne(

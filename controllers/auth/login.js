@@ -82,9 +82,14 @@ exports.login = async (req, res) => {
         req.connection.remoteAddress ||
         ""
       ).split(",");
+      const rawIp = ipAddress[0].trim();
+      // Validate IP format to prevent SSRF
+      const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+      const ipv6Regex = /^[0-9a-fA-F:]+$/;
+      const validIp = (ipv4Regex.test(rawIp) || ipv6Regex.test(rawIp)) ? rawIp : "";
       const config = {
         method: "get",
-        url: `${url}?api_key=${abstractApiKey}&ip_address=${ipAddress[0].trim()}`,
+        url: `${url}?api_key=${abstractApiKey}&ip_address=${validIp}`,
       };
       
       let responseData;

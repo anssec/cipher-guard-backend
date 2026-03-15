@@ -1,4 +1,5 @@
 const passwordvault = require("../../models/passwordVault.js");
+const User = require("../../models/user.js");
 const nodeCache = require("../../utils/nodeCache.js");
 const Response = require("../../utils/Response.js");
 const CryptoJS = require("crypto-js");
@@ -8,6 +9,12 @@ exports.updateSavedPasswd = async (req, res) => {
     const vaultPin = req.vaultPin;
     const id = req.params.id;
     const { name, username, password, website } = req.body;
+    // BOLA check: verify the password entry belongs to this user
+    const user = await User.findById(req.user.id);
+    if (!user.passwordVault.some((pwId) => pwId.toString() === id)) {
+      Response(res, false, "Not authorized to update this password", 403);
+      return;
+    }
     const currentDate = new Date().toLocaleString("en-US", {
       year: "numeric",
       month: "2-digit",

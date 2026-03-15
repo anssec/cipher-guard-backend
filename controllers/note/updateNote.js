@@ -1,4 +1,5 @@
 const secureNotes = require("../../models/secureNotes.js");
+const User = require("../../models/user.js");
 const CryptoJS = require("crypto-js");
 const Response = require("../../utils/Response.js");
 const nodeCache = require("../../utils/nodeCache.js");
@@ -7,6 +8,12 @@ exports.updateNote = async (req, res) => {
     const { name, note, favorite } = req.body;
     const vaultPin = req.vaultPin;
     const id = req.params.id;
+    // BOLA check: verify the note belongs to this user
+    const user = await User.findById(req.user.id);
+    if (!user.secureNotes.some((noteId) => noteId.toString() === id)) {
+      Response(res, false, "Not authorized to update this note", 403);
+      return;
+    }
     const existingNote = await secureNotes.findById(id);
     if (!existingNote) {
       Response(res, false, "Note not found", 404);
