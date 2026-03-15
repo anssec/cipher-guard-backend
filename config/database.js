@@ -1,13 +1,21 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
+let isConnected = false;
+
 exports.connectDB = async () => {
+  if (isConnected) {
+    console.log("Using existing DB connection");
+    return;
+  }
+
   try {
-    await mongoose.connect(process.env.MONGODB);
+    const db = await mongoose.connect(process.env.MONGODB);
+    isConnected = db.connections[0].readyState === 1;
     console.log("DB Connected Successfully");
   } catch (error) {
     console.log("DB Connection Failed");
     console.error(error);
-    process.exit(1);
+    throw error;
   }
 };
