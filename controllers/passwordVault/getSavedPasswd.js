@@ -9,14 +9,15 @@ exports.getSavedPasswd = async (req, res) => {
     // console.log("nodeCache:", nodeCache);
     // console.log("verifyToken:", verifyToken);
 
-    if (nodeCache.has("getSavedPasswd")) {
-      getAllSavedPasswd = JSON.parse(nodeCache.get("getSavedPasswd"));
+    const userId = verifyToken.id;
+    if (nodeCache.has(`getSavedPasswd_${userId}`)) {
+      getAllSavedPasswd = JSON.parse(nodeCache.get(`getSavedPasswd_${userId}`));
     } else {
       const user = await User.findById(verifyToken.id).populate(
         "passwordVault"
       );
       getAllSavedPasswd = user.passwordVault;
-      nodeCache.set("getSavedPasswd", JSON.stringify(getAllSavedPasswd), 300);
+      nodeCache.set(`getSavedPasswd_${userId}`, JSON.stringify(getAllSavedPasswd), 300);
     }
     Response(res, true, null, 200, getAllSavedPasswd);
     return;

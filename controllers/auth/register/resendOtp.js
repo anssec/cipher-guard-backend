@@ -7,7 +7,7 @@ exports.resendOtp = async (req, res) => {
   try {
     const cookiesValue =
       req.cookies.data ||
-      req.header("Authorization").replace("Bearer ", "");
+      req.header("Authorization")?.replace("Bearer ", "");
     if (!cookiesValue) {
       Response(res, false, "Please register first", 422);
       return;

@@ -23,6 +23,7 @@ exports.addEmergencyAccess = async (req, res) => {
         "Password must contain at least one lowercase letter, one uppercase letter, and one special symbol.",
         422
       );
+      return;
     }
     const hashPassword = await bcrypt.hash(password, 10);
     try {
@@ -55,7 +56,7 @@ exports.emergencyLogin = async (req, res) => {
       Response(res, false, "Enter valid email id.", 422);
       return;
     }
-    const users = await User.findOne({ emergencyAccess: emergencyMail });
+    const users = await User.findOne({ emergencyMail: emergencyMail });
     if (!users) {
       Response(res, false, "Emergency email not found.", 404);
       return;
@@ -76,7 +77,7 @@ exports.emergencyLogin = async (req, res) => {
     if (!isPasswordMatch) {
       // Check if lastAttemptTime is older than the current time
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-      if (users.wrongPasswdAttempt.lastAttemptTime < thirtyMinutesAgo) {
+      if (users.wrongPasswdAttempt.lastAttemptTime && users.wrongPasswdAttempt.lastAttemptTime < thirtyMinutesAgo) {
         // Reset attempts to 0 and set lastAttemptTime to undefined
         users.wrongPasswdAttempt.attempts = 0;
         users.wrongPasswdAttempt.lastAttemptTime = undefined;
@@ -95,8 +96,9 @@ exports.emergencyLogin = async (req, res) => {
           423
         );
         return;
-      } else if (users.wrongPasswdAttempt.lastAttemptTime) {
+      } else {
         users.wrongPasswdAttempt.attempts += 1;
+        users.wrongPasswdAttempt.lastAttemptTime = new Date();
         await users.save();
         Response(
           res,
@@ -107,7 +109,7 @@ exports.emergencyLogin = async (req, res) => {
         return;
       }
     } else {
-      users.wrongPasswdAttempt.attempts *= 0;
+      users.wrongPasswdAttempt.attempts = 0;
       users.wrongPasswdAttempt.lastAttemptTime = undefined;
       await users.save();
       const currentDate = new Date().toLocaleString("en-US", {
@@ -209,7 +211,7 @@ exports.emergencyLogin = async (req, res) => {
       await users.save();
       const options = {
         httpOnly: true,
-        expires: new Date(Date.now() + 4 + 24 * 60 * 60 * 1000),
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       };
       res
         .cookie("token", token, options)

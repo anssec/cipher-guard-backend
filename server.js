@@ -1,5 +1,6 @@
-const express = require("express");
 const dotenv = require("dotenv");
+dotenv.config();
+const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const { connectDB } = require("./config/database.js");
@@ -10,14 +11,10 @@ const features = require("./routes/features.js");
 const admin = require("./routes/admin.js");
 const Response = require("./utils/Response.js");
 const PORT = process.env.PORT || 7000;
-dotenv.config();
 const app = express();
-app.listen(PORT, () => {
-  console.log(`App is running at ${PORT}`);
-});
+
 app.use(express.json());
 app.use(cookieParser());
-connectDB();
 app.use(
   cors({
     origin: process.env.FRONTENDURL,
@@ -32,7 +29,6 @@ app.use(
 //routes Import
 app.get("/", (req, res) => {
   Response(res, true, "Api is Working", 200);
-  
   return;
 });
 app.use("/api/auth", Auth);
@@ -40,5 +36,10 @@ app.use("/api/note", Note);
 app.use("/api/passwordVault", passwdVault);
 app.use("/api/features", features);
 app.use("/api/admin", admin);
+
+connectDB();
+app.listen(PORT, () => {
+  console.log(`App is running at ${PORT}`);
+});
 
 module.exports = app;

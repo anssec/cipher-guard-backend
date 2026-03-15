@@ -1,15 +1,23 @@
 const User = require("../../models/user.js");
 const Response = require("../../utils/Response.js");
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 exports.searchNote = async (req, res) => {
   try {
     const verifyToken = req.user;
     const name = req.query.name;
+    if (!name) {
+      Response(res, false, "Search query is required", 422);
+      return;
+    }
     const user = await User.findById(verifyToken.id).populate("secureNotes");
+    const escapedName = escapeRegExp(name);
     const searchResult = user.secureNotes.filter((note) =>
-      new RegExp(name, "i").test(note.name)
+      new RegExp(escapedName, "i").test(note.name)
     );
-    user.secureNotes;
     Response(
       res,
       true,

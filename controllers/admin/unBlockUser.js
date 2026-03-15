@@ -4,17 +4,24 @@ const { mailSender } = require("../../utils/mailSender.js");
 
 exports.unBlockUser = async (req, res) => {
   try {
-    const id = req.params.id;
-    const { unblock } = req.body;
+    const { id, unblock } = req.body;
+    if (!id) {
+      Response(res, false, "User ID is required", 422);
+      return;
+    }
     if (unblock === false) {
       const findBlockUserAndUnBlock = await User.findByIdAndUpdate(
         id,
         {
-          wrongPasswdAttempt: 0,
+          wrongPasswdAttempt: { attempts: 0, lastAttemptTime: undefined },
           accountLock: unblock,
         },
         { new: true }
       );
+      if (!findBlockUserAndUnBlock) {
+        Response(res, false, "User not found", 404);
+        return;
+      }
       await mailSender(
         findBlockUserAndUnBlock.email,
         "Account Status",
@@ -101,6 +108,8 @@ exports.unBlockUser = async (req, res) => {
       );
       return;
     } else {
+      Response(res, false, "Invalid unblock value", 422);
+      return;
     }
   } catch (error) {
     console.log(error.message);

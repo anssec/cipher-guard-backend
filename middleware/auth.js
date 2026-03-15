@@ -6,7 +6,7 @@ const CryptoJS = require("crypto-js");
 exports.auth = async (req, res, next) => {
   try {
     //extract token
-    const token0 = req.cookies.token || req.header("Authorization").replace("Bearer ", "");
+    const token0 = req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
     // console.log(token0)
     if (!token0) {
       Response(res, false, "Token Is missing", 401);
@@ -63,7 +63,7 @@ exports.isAuthUser = async (req, res, next) => {
 //verify Auth Pin
 exports.verifyAuthPin = async (req, res, next) => {
   try {
-    const vaultAuth = req.header("Authorization").replace("Bearer ", "");
+    const vaultAuth = req.header("Authorization")?.replace("Bearer ", "");
     const decode = CryptoJS.AES.decrypt(
       vaultAuth,
       process.env.SECUREPIN

@@ -14,7 +14,7 @@ exports.createVaultPin = async (req, res) => {
       Response(res, false, "vault pin already created", 422);
       return;
     }
-    const hashVaultPin = await bcrypt.hash(vaultPin, 12);
+    const hashVaultPin = await bcrypt.hash(vaultPin.toString(), 12);
     user.vaultPin = hashVaultPin;
     await user.save();
     Response(res, true, "pin created successfully", 200);

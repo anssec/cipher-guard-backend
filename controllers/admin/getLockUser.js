@@ -10,10 +10,10 @@ exports.getLockUser = async (req, res) => {
       Response(res, true, null, 200, lockUser);
       return;
     } else {
-      const filterLockUser = await User.find({ accountLock: true });
-      lockUser = nodeCache.set(
+      lockUser = await User.find({ accountLock: true });
+      nodeCache.set(
         "getLockUser",
-        JSON.stringify(filterLockUser),
+        JSON.stringify(lockUser),
         200
       );
       Response(res, true, null, 200, lockUser);

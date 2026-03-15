@@ -47,17 +47,17 @@ exports.updateSavedPasswd = async (req, res) => {
         { new: true }
       );
       if (!updatedPassword) {
-        Response(res, true, "Password not found", 404);
+        Response(res, false, "Password not found", 404);
         return;
       }
       updatedPassword.passwordHistory += 1;
       await updatedPassword.save();
-      nodeCache.del("getSavedPasswd");
+      nodeCache.del(`getSavedPasswd_${req.user.id}`);
       Response(res, true, "Password Updated", 200);
       return;
     } catch (error) {
       console.log(error.message);
-      Response(res, true, "Unable to update password", 404);
+      Response(res, false, "Unable to update password", 404);
       return;
     }
   } catch (error) {

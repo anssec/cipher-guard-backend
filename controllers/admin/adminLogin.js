@@ -126,7 +126,7 @@ exports.adminLogin = async (req, res) => {
       });
       const options = {
         httpOnly: true,
-        expires: new Date(Date.now() + 4 + 24 * 60 * 60 * 1000),
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       };
       res
         .cookie("token", token, options)

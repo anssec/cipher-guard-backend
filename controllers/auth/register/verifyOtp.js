@@ -9,7 +9,7 @@ exports.verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
     const cookiesValue =
-      req.cookies.data || req.header("Authorization").replace("Bearer ", "");
+      req.cookies.data || req.header("Authorization")?.replace("Bearer ", "");
     if (!cookiesValue) {
       Response(res, false, "Please register first", 422);
       return;

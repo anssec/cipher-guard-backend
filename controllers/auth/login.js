@@ -39,14 +39,14 @@ exports.login = async (req, res) => {
     if (!isPasswordMatch) {
       // Check if lastAttemptTime is older than the current time
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-      if (users.wrongPasswdAttempt.lastAttemptTime < thirtyMinutesAgo) {
+      if (users.wrongPasswdAttempt.lastAttemptTime && users.wrongPasswdAttempt.lastAttemptTime < thirtyMinutesAgo) {
         // Reset attempts to 0 and set lastAttemptTime to undefined
         users.wrongPasswdAttempt.attempts = 0;
         users.wrongPasswdAttempt.lastAttemptTime = undefined;
         await users.save();
       }
       if (
-        users.wrongPasswdAttempt.attempts === 4 &&
+        users.wrongPasswdAttempt.attempts >= 4 &&
         users.wrongPasswdAttempt.lastAttemptTime
       ) {
         users.accountLock = true;
@@ -59,8 +59,9 @@ exports.login = async (req, res) => {
           423
         );
         return;
-      } else if (users.wrongPasswdAttempt.lastAttemptTime) {
+      } else {
         users.wrongPasswdAttempt.attempts += 1;
+        users.wrongPasswdAttempt.lastAttemptTime = new Date();
         await users.save();
         Response(
           res,
@@ -71,7 +72,7 @@ exports.login = async (req, res) => {
         return;
       }
     } else {
-      users.wrongPasswdAttempt.attempts *= 0;
+      users.wrongPasswdAttempt.attempts = 0;
       users.wrongPasswdAttempt.lastAttemptTime = undefined;
       await users.save();
       const ipAddress = (

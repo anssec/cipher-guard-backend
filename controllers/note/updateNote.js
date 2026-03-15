@@ -7,22 +7,32 @@ exports.updateNote = async (req, res) => {
     const { name, note, favorite } = req.body;
     const vaultPin = req.vaultPin;
     const id = req.params.id;
+    const existingNote = await secureNotes.findById(id);
+    if (!existingNote) {
+      Response(res, false, "Note not found", 404);
+      return;
+    }
     const updateNotes = {};
     if (name) {
       updateNotes.name = name;
     }
     if (note) {
-      updateNotes.notes = await CryptoJS.AES.encrypt(note, vaultPin).toString();
+      if (existingNote.encrypt) {
+        updateNotes.notes = CryptoJS.AES.encrypt(note, vaultPin).toString();
+      } else {
+        updateNotes.notes = note;
+      }
     }
-    if (favorite) {
+    if (favorite === true || favorite === false) {
       updateNotes.favorite = favorite;
     }
     try {
       await secureNotes.findByIdAndUpdate(id, updateNotes, {
         new: true,
       });
-      nodeCache.del("getAllNote");
-      nodeCache.del("favoriteNotes");
+      const userId = req.user.id;
+      nodeCache.del(`getAllNote_${userId}`);
+      nodeCache.del(`favoriteNotes_${userId}`);
       Response(res, true, "Note updated successfully", 200);
       return;
     } catch (error) {
