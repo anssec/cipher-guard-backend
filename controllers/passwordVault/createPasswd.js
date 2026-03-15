@@ -3,7 +3,6 @@ const passwordvault = require("../../models/passwordVault.js");
 const CryptoJS = require("crypto-js");
 const Response = require("../../utils/Response.js");
 const nodeCache = require("../../utils/nodeCache.js");
-const favicon = require("favicon-getter").default;
 exports.createPasswd = async (req, res) => {
   try {
     const { username, password, website } = req.body;
@@ -25,15 +24,15 @@ exports.createPasswd = async (req, res) => {
         return url.hostname;
       } catch (error) {
         // Handle invalid URLs or other errors
-        // console.error("Invalid URL:", error.message);
         return "Not define";
       }
     }
     const domain = extractDomain(website);
-    const faviconFinder = async () => {
+    const faviconFinder = () => {
       try {
-        const faviconUrl = await favicon(website);
-        return faviconUrl;
+        // Use Google's public favicon API — no extra dependencies needed
+        const faviconDomain = domain !== "Not define" ? domain : "";
+        return `https://www.google.com/s2/favicons?domain=${faviconDomain}&sz=64`;
       } catch (error) {
         return "https://raw.githubusercontent.com/anshuldevsec/cipher-guard/main/src/assets/defaultFavicon.png";
       }
@@ -58,7 +57,7 @@ exports.createPasswd = async (req, res) => {
       username,
       password: encryptPasswd,
       website,
-      websiteFavicon: await faviconFinder(),
+      websiteFavicon: faviconFinder(),
       Created: currentDate,
       email: userEmail,
     });
