@@ -10,7 +10,11 @@ exports.connectDB = async () => {
   }
 
   try {
-    const db = await mongoose.connect(process.env.MONGODB);
+    const db = await mongoose.connect(process.env.MONGODB, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      bufferCommands: false,
+    });
     isConnected = db.connections[0].readyState === 1;
     console.log("DB Connected Successfully");
   } catch (error) {
